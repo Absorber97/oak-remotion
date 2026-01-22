@@ -19,19 +19,24 @@ import { FONTS } from '../styles/fonts';
  * Phase 2 (50-110): Website CTA + Polaroid Video (slides in from above)
  */
 
-// Lightning particle for electric effect
+// Lightning particle for electric effect - intensified during transition
 const LightningParticle: React.FC<{
   x: number;
   y: number;
   delay: number;
   size: number;
-}> = ({ x, y, delay, size }) => {
+  transitionIntensity?: number;
+}> = ({ x, y, delay, size, transitionIntensity = 0 }) => {
   const frame = useCurrentFrame();
 
   const floatY = Math.sin((frame + delay) * 0.08) * 25;
   const floatX = Math.cos((frame + delay) * 0.06) * 15;
-  const flicker = Math.sin((frame + delay) * 0.4) * 0.5 + 0.5;
+  // Faster flicker during transition for energy
+  const flickerSpeed = 0.4 + transitionIntensity * 0.3;
+  const flicker = Math.sin((frame + delay) * flickerSpeed) * 0.5 + 0.5;
   const rotate = Math.sin((frame + delay) * 0.1) * 45;
+  // Intensify during transition
+  const intensityBoost = 1 + transitionIntensity * 0.5;
 
   return (
     <div
@@ -39,18 +44,18 @@ const LightningParticle: React.FC<{
         position: 'absolute',
         left: `${x}%`,
         top: `${y}%`,
-        width: size,
-        height: size * 2,
+        width: size * intensityBoost,
+        height: size * 2 * intensityBoost,
         transform: `translate(${floatX}px, ${floatY}px) rotate(${rotate}deg)`,
-        opacity: 0.4 + flicker * 0.5,
+        opacity: (0.4 + flicker * 0.5) * intensityBoost,
       }}
     >
       {/* Lightning bolt shape */}
       <svg viewBox="0 0 24 48" fill="none" style={{ width: '100%', height: '100%' }}>
         <path
           d="M14 2L4 22h8l-2 24 12-28h-8l4-16z"
-          fill={`rgba(0, 255, 136, ${0.6 + flicker * 0.4})`}
-          filter={`drop-shadow(0 0 ${4 + flicker * 6}px rgba(0, 255, 136, 0.8))`}
+          fill={`rgba(0, 255, 136, ${(0.6 + flicker * 0.4) * intensityBoost})`}
+          filter={`drop-shadow(0 0 ${(4 + flicker * 6) * intensityBoost}px rgba(0, 255, 136, 0.8))`}
         />
       </svg>
     </div>
@@ -200,6 +205,15 @@ export const CTAScene: React.FC = () => {
   const glowPulse = 1 + Math.sin(frame * 0.12) * 0.4;
   const videoFloat = Math.sin(frame * 0.05) * 8;
 
+  // Lightning intensity during transition (frames 40-65)
+  const lightningIntensity = interpolate(frame, [40, 52, 65], [0, 1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  // URL shimmer sweep position
+  const shimmerPos = ((frame * 2) % 200) - 50;
+
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.background }}>
       {/* Gradient background */}
@@ -231,15 +245,15 @@ export const CTAScene: React.FC = () => {
       <FloatingEmoji x={50} y={8} delay={30} size={40} emoji="⚡" />
       <FloatingEmoji x={50} y={90} delay={18} size={40} emoji="🎯" />
 
-      {/* Lightning particles floating */}
-      <LightningParticle x={15} y={25} delay={0} size={12} />
-      <LightningParticle x={85} y={30} delay={20} size={10} />
-      <LightningParticle x={25} y={65} delay={35} size={14} />
-      <LightningParticle x={75} y={70} delay={10} size={11} />
-      <LightningParticle x={45} y={20} delay={45} size={9} />
-      <LightningParticle x={55} y={75} delay={25} size={13} />
-      <LightningParticle x={30} y={40} delay={55} size={8} />
-      <LightningParticle x={70} y={35} delay={15} size={10} />
+      {/* Lightning particles floating - intensified during transition */}
+      <LightningParticle x={15} y={25} delay={0} size={12} transitionIntensity={lightningIntensity} />
+      <LightningParticle x={85} y={30} delay={20} size={10} transitionIntensity={lightningIntensity} />
+      <LightningParticle x={25} y={65} delay={35} size={14} transitionIntensity={lightningIntensity} />
+      <LightningParticle x={75} y={70} delay={10} size={11} transitionIntensity={lightningIntensity} />
+      <LightningParticle x={45} y={20} delay={45} size={9} transitionIntensity={lightningIntensity} />
+      <LightningParticle x={55} y={75} delay={25} size={13} transitionIntensity={lightningIntensity} />
+      <LightningParticle x={30} y={40} delay={55} size={8} transitionIntensity={lightningIntensity} />
+      <LightningParticle x={70} y={35} delay={15} size={10} transitionIntensity={lightningIntensity} />
 
       {/* ===========================================
           PHASE 1: Main Message
@@ -342,7 +356,7 @@ export const CTAScene: React.FC = () => {
           opacity: phase2Opacity,
         }}
       >
-        {/* Website CTA - BIGGER */}
+        {/* Website CTA - BIGGER with staggered text */}
         <div
           style={{
             display: 'flex',
@@ -359,12 +373,22 @@ export const CTAScene: React.FC = () => {
               color: COLORS.muted,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
+              // Stagger: subtitle appears first
+              opacity: interpolate(frame, [55, 65], [0, 1], {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              }),
+              transform: `translateY(${interpolate(frame, [55, 65], [20, 0], {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              })}px)`,
             }}
           >
             Read the full article + case study
           </div>
           <div
             style={{
+              position: 'relative',
               fontFamily: FONTS.mono,
               fontSize: 72,
               fontWeight: 700,
@@ -375,8 +399,31 @@ export const CTAScene: React.FC = () => {
                 0 0 ${60 * glowPulse}px ${COLORS.glow.green},
                 0 0 ${100 * glowPulse}px ${COLORS.glow.green}
               `,
+              overflow: 'hidden',
+              // Stagger: URL appears 5 frames after subtitle
+              opacity: interpolate(frame, [60, 70], [0, 1], {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              }),
+              transform: `translateY(${interpolate(frame, [60, 70], [20, 0], {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              })}px)`,
             }}
           >
+            {/* Shimmer sweep overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: `${shimmerPos}%`,
+                width: '30%',
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)',
+                transform: 'skewX(-20deg)',
+                pointerEvents: 'none',
+              }}
+            />
             forbiddentrust.com
           </div>
         </div>
@@ -388,14 +435,14 @@ export const CTAScene: React.FC = () => {
             position: 'relative',
           }}
         >
-          {/* Glow backdrop */}
+          {/* Glow backdrop - boosted */}
           <div
             style={{
               position: 'absolute',
-              inset: -20,
-              background: `radial-gradient(ellipse at center, ${COLORS.primary}30 0%, transparent 70%)`,
-              filter: 'blur(30px)',
-              opacity: glowPulse * 0.6,
+              inset: -30,
+              background: `radial-gradient(ellipse at center, ${COLORS.primary}40 0%, transparent 70%)`,
+              filter: 'blur(35px)',
+              opacity: glowPulse * 0.8,
             }}
           />
           {/* Video container with sleek rounded corners and glow border */}
@@ -407,8 +454,9 @@ export const CTAScene: React.FC = () => {
               borderRadius: 16,
               overflow: 'hidden',
               boxShadow: `
-                0 0 0 2px ${COLORS.primary}50,
-                0 0 ${40 * glowPulse}px ${COLORS.primary}40,
+                0 0 0 2px ${COLORS.primary}60,
+                0 0 ${50 * glowPulse}px ${COLORS.primary}50,
+                0 0 ${80 * glowPulse}px ${COLORS.primary}30,
                 0 25px 80px rgba(0, 0, 0, 0.5)
               `,
             }}
@@ -435,10 +483,11 @@ export const CTAScene: React.FC = () => {
         </div>
       </AbsoluteFill>
 
-      {/* Vignette */}
+      {/* Vignette - subtle pulse */}
       <AbsoluteFill
         style={{
           background: GRADIENTS.vignette,
+          opacity: 0.85 + Math.sin(frame * 0.06) * 0.1,
           pointerEvents: 'none',
         }}
       />

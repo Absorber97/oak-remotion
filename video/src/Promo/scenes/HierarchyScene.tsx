@@ -110,7 +110,7 @@ const RisingSpark: React.FC<{
         borderRadius: '50%',
         backgroundColor: color,
         opacity,
-        boxShadow: `0 0 ${size * 3}px ${color}`,
+        boxShadow: `0 0 ${size * 3 * (1 + Math.sin(frame * 0.08 + delay) * 0.4)}px ${color}`,
       }}
     />
   );
@@ -168,8 +168,8 @@ const CrownEmoji: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  // Scale bounce
-  const scale = interpolate(entrySpring, [0, 0.5, 1], [0.3, 1.3, 1], {
+  // Scale bounce - reduced overshoot for cleaner motion
+  const scale = interpolate(entrySpring, [0, 0.5, 1], [0.3, 1.15, 1], {
     extrapolateRight: 'clamp',
   });
 
@@ -178,10 +178,10 @@ const CrownEmoji: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  // Continuous floating and wobble after landing
+  // Continuous floating and wobble after landing - synced to scene frequency
   const floatY = Math.sin(frame * 0.08) * 8;
-  const wobble = Math.sin(frame * 0.12) * 5;
-  const pulse = 1 + Math.sin(frame * 0.15) * 0.08;
+  const wobble = Math.sin(frame * 0.08 + 0.5) * 4;
+  // Remove conflicting pulse - let float breathe alone
 
   return (
     <div
@@ -189,7 +189,7 @@ const CrownEmoji: React.FC = () => {
         position: 'absolute',
         top: -80,
         left: '50%',
-        transform: `translateX(-50%) translateY(${y + floatY}px) scale(${scale * pulse}) rotate(${rotate + wobble}deg)`,
+        transform: `translateX(-50%) translateY(${y + floatY}px) scale(${scale}) rotate(${rotate + wobble}deg)`,
         fontSize: 100,
         filter: 'drop-shadow(0 0 30px rgba(255, 215, 0, 0.8)) drop-shadow(0 10px 30px rgba(0,0,0,0.5))',
         zIndex: 10,
@@ -224,8 +224,8 @@ export const HierarchyScene: React.FC = () => {
   // Continuous breathing effect for the whole scene
   const breathe = 1 + Math.sin(frame * 0.08) * 0.03;
 
-  // Continuous text glow pulse
-  const glowIntensity = 1 + Math.sin(frame * 0.15) * 0.4;
+  // Continuous text glow pulse - synced to breathing frequency
+  const glowIntensity = 1 + Math.sin(frame * 0.08) * 0.4;
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.background }}>
@@ -349,10 +349,17 @@ const PodiumBlock: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // Staggered spring configs by rank for visual hierarchy
+  const springConfig = isGold
+    ? { damping: 10, stiffness: 200 }   // Gold: snappy, authoritative
+    : rank === 2
+    ? { damping: 8, stiffness: 150 }    // Silver: balanced
+    : { damping: 12, stiffness: 130 };  // Bronze: slower, anticipatory
+
   const entrySpring = spring({
     frame: frame - delay,
     fps,
-    config: SPRINGS.bounce,
+    config: springConfig,
   });
 
   const scaleY = interpolate(entrySpring, [0, 1], [0, 1], {
@@ -365,10 +372,10 @@ const PodiumBlock: React.FC<{
     extrapolateRight: 'clamp',
   });
 
-  // CONTINUOUS: Glow pulse for all blocks, stronger for gold
+  // CONTINUOUS: Glow pulse synced to scene breathing (0.08 base)
   const glowPulse = isGold
-    ? 1 + Math.sin(frame * 0.12) * 0.6
-    : 1 + Math.sin(frame * 0.1 + delay) * 0.4;
+    ? 1 + Math.sin(frame * 0.08) * 0.6
+    : 1 + Math.sin(frame * 0.08 + delay * 0.1) * 0.4;
 
   // CONTINUOUS: Subtle floating motion
   const floatY = Math.sin(frame * 0.08 + delay) * 5;
@@ -379,8 +386,11 @@ const PodiumBlock: React.FC<{
   // CONTINUOUS: Scale pulse for gold block
   const scalePulse = isGold ? 1 + Math.sin(frame * 0.1) * 0.02 : 1;
 
-  // Shine effect position
-  const shinePos = ((frame + delay * 10) % 120) / 120;
+  // Shine effect with ease-in-out motion
+  const shineCycle = (frame + delay * 10) % 120;
+  const shineEased = Math.sin((shineCycle / 120) * Math.PI - Math.PI / 2) * 0.5 + 0.5;
+  const shinePos = shineEased;
+  const shineOpacity = 0.25 + Math.sin(frame * 0.08) * 0.1;
 
   return (
     <div
@@ -405,7 +415,7 @@ const PodiumBlock: React.FC<{
             0 0 ${50 * glowPulse}px ${color}70,
             0 0 ${100 * glowPulse}px ${color}50,
             0 0 ${150 * glowPulse}px ${color}30,
-            0 25px 80px rgba(0,0,0,0.6)
+            0 ${25 + Math.sin(frame * 0.08) * 3}px ${80 + Math.sin(frame * 0.08) * 10}px rgba(0,0,0,${0.5 + Math.sin(frame * 0.08) * 0.1})
           `,
           display: 'flex',
           alignItems: 'flex-end',
@@ -423,7 +433,7 @@ const PodiumBlock: React.FC<{
             left: `${shinePos * 150 - 50}%`,
             width: '30%',
             height: '100%',
-            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+            background: `linear-gradient(90deg, transparent, rgba(255,255,255,${shineOpacity}), transparent)`,
             transform: 'skewX(-20deg)',
           }}
         />
@@ -450,7 +460,9 @@ const PodiumBlock: React.FC<{
           color: COLORS.text,
           textAlign: 'center',
           letterSpacing: '0.12em',
-          opacity: scaleY > 0.7 ? 1 : 0,
+          opacity: scaleY > 0.3
+            ? interpolate(scaleY, [0.3, 0.7], [0, 1], { extrapolateRight: 'clamp' })
+            : 0,
           textShadow: `0 0 ${20 * glowPulse}px ${color}80`,
         }}
       >

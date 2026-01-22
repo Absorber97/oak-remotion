@@ -27,7 +27,7 @@ import { FONTS } from '../styles/fonts';
  *   - Flash: white brightness at the end
  */
 
-// Spark particle for continuous visual interest
+// Spark particle for continuous visual interest - synced to scene breathing
 const Spark: React.FC<{
   x: number;
   y: number;
@@ -36,9 +36,11 @@ const Spark: React.FC<{
 }> = ({ x, y, delay, color }) => {
   const frame = useCurrentFrame();
 
-  // Continuous sparkle animation
-  const sparkle = Math.sin((frame + delay * 10) * 0.2) * 0.5 + 0.5;
-  const size = 4 + Math.sin((frame + delay * 5) * 0.15) * 2;
+  // Sync sparkle to scene breathing frequency (0.06 base)
+  const sparkle = Math.sin((frame + delay * 10) * 0.06) * 0.5 + 0.5;
+  const size = 4 + Math.sin((frame + delay * 5) * 0.08) * 2;
+  // Glow pulse synced to breathing
+  const glowPulse = 1 + Math.sin(frame * 0.06 + delay) * 0.3;
 
   return (
     <div
@@ -51,7 +53,7 @@ const Spark: React.FC<{
         borderRadius: '50%',
         backgroundColor: color,
         opacity: sparkle * 0.8,
-        boxShadow: `0 0 ${size * 3}px ${color}`,
+        boxShadow: `0 0 ${size * 3 * glowPulse}px ${color}`,
         transform: `scale(${sparkle})`,
       }}
     />
@@ -259,7 +261,7 @@ export const MultiplierScene: React.FC = () => {
               )}
             </div>
 
-            {/* Subtitle */}
+            {/* Subtitle - enhanced shimmer */}
             <div
               style={{
                 fontFamily: FONTS.mono,
@@ -268,7 +270,10 @@ export const MultiplierScene: React.FC = () => {
                 color: COLORS.primary,
                 opacity: subtitleOpacity * textOpacity,
                 letterSpacing: '0.08em',
-                textShadow: `0 0 ${20 + Math.sin(frame * 0.1) * 10}px ${COLORS.glow.green}`,
+                textShadow: `
+                  0 0 ${20 + Math.sin(frame * 0.12) * 10}px ${COLORS.glow.green},
+                  0 0 ${40 + Math.sin(frame * 0.12 + 0.5) * 15}px ${COLORS.glow.green}
+                `,
               }}
             >
               Same effort, 10× more results
@@ -366,13 +371,13 @@ const EquationWord: React.FC<{
     extrapolateRight: 'clamp',
   });
 
-  // CONTINUOUS: Pulse for operators, glow pulse for words
+  // CONTINUOUS: Pulse for operators, glow pulse for words - unified frequency
   const pulse = isOp
-    ? 1 + Math.sin(frame * 0.25) * 0.15
-    : 1 + Math.sin(frame * 0.12 + delay) * 0.08;
+    ? 1 + Math.sin(frame * 0.15) * 0.15
+    : 1 + Math.sin(frame * 0.12 + delay) * 0.06;
 
-  // CONTINUOUS: Glow intensity animation
-  const glowIntensity = 1 + Math.sin(frame * 0.15 + delay * 0.5) * 0.4;
+  // CONTINUOUS: Glow intensity animation - synced to 0.12 base
+  const glowIntensity = 1 + Math.sin(frame * 0.12 + delay * 0.5) * 0.4;
 
   // CONTINUOUS: Subtle y float
   const floatY = isOp ? 0 : Math.sin(frame * 0.08 + delay) * 3;

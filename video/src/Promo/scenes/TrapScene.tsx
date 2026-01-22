@@ -41,9 +41,11 @@ const ThoughtBubble: React.FC = () => {
     config: { damping: 10, stiffness: 150 },
   });
 
-  // Continuous motion
-  const floatY = Math.sin(frame * 0.06) * 5;
-  const wobble = Math.sin(frame * 0.04) * 1.5;
+  // Continuous motion - enhanced post-entry float
+  const floatY = Math.sin(frame * 0.06) * 8;
+  const floatX = Math.cos(frame * 0.05) * 4;
+  const wobble = Math.sin(frame * 0.04) * 2;
+  const bubbleBreathe = bubbleSpring > 0.9 ? 1 + Math.sin(frame * 0.08) * 0.02 : 1;
 
   // Scale with bounce
   const bubbleScale = interpolate(bubbleSpring, [0, 1], [0, 1], {
@@ -56,7 +58,7 @@ const ThoughtBubble: React.FC = () => {
         position: 'absolute',
         top: 140,
         right: 320,
-        transform: `translateY(${floatY}px) rotate(${wobble}deg)`,
+        transform: `translate(${floatX}px, ${floatY}px) rotate(${wobble}deg) scale(${bubbleBreathe})`,
       }}
     >
       {/* Bubble circles (tail) - connected, pointing down-left toward price */}
@@ -333,7 +335,7 @@ export const TrapScene: React.FC = () => {
         {/* Price tag */}
         <div
           style={{
-            transform: `scale(${priceScale}) rotate(${priceWobble}deg)`,
+            transform: `scale(${priceScale * (1 + Math.sin(frame * 0.1) * 0.02)}) rotate(${priceWobble}deg)`,
             opacity: priceOpacity,
             display: 'flex',
             flexDirection: 'column',
@@ -344,14 +346,14 @@ export const TrapScene: React.FC = () => {
           {/* Price tag box */}
           <div
             style={{
-              backgroundColor: 'rgba(0, 255, 136, 0.15)',
-              border: `4px solid ${COLORS.primary}`,
+              backgroundColor: `rgba(0, 255, 136, ${0.12 + Math.sin(frame * 0.1) * 0.05})`,
+              border: `4px solid rgba(0, 255, 136, ${0.7 + Math.sin(frame * 0.15) * 0.3})`,
               borderRadius: 24,
               padding: '36px 72px',
               boxShadow: `
                 0 0 ${40 * priceGlow}px ${COLORS.glow.green},
                 0 0 ${80 * priceGlow}px ${COLORS.glow.green},
-                inset 0 0 40px rgba(0, 255, 136, 0.15)
+                inset 0 0 ${40 + Math.sin(frame * 0.12) * 15}px rgba(0, 255, 136, 0.15)
               `,
             }}
           >
@@ -381,8 +383,12 @@ export const TrapScene: React.FC = () => {
             }}
           >
             {chainLinks.map((linkOpacity, i) => {
-              const linkFloat = Math.sin(frame * 0.1 + i) * 3;
-              const linkRotate = (i - 2) * 15 + Math.sin(frame * 0.08 + i) * 5;
+              // Enhanced pendulum swing - more dramatic motion
+              const basePeriod = 0.08 + i * 0.015;
+              const swingPhase = Math.sin(frame * basePeriod + i) * 15;
+              const linkFloat = Math.cos(frame * basePeriod + i) * 6;
+              const linkRotate = (i - 2) * 15 + swingPhase;
+              const skewY = Math.sin(frame * 0.1 + i) * 3;
               return (
                 <div
                   key={i}
@@ -392,8 +398,8 @@ export const TrapScene: React.FC = () => {
                     border: `4px solid ${COLORS.muted}`,
                     borderRadius: 16,
                     opacity: linkOpacity,
-                    transform: `rotate(${linkRotate}deg) translateY(${linkFloat}px)`,
-                    boxShadow: linkOpacity > 0.5 ? `0 0 10px ${COLORS.muted}40` : 'none',
+                    transform: `rotate(${linkRotate}deg) translateY(${linkFloat}px) skewY(${skewY}deg)`,
+                    boxShadow: linkOpacity > 0.5 ? `0 0 ${10 + Math.sin(frame * 0.12) * 5}px ${COLORS.muted}40` : 'none',
                   }}
                 />
               );
@@ -460,10 +466,11 @@ export const TrapScene: React.FC = () => {
       </AbsoluteFill>
 
 
-      {/* Vignette */}
+      {/* Vignette - subtle pulse */}
       <AbsoluteFill
         style={{
           background: GRADIENTS.vignette,
+          opacity: 0.85 + Math.sin(frame * 0.06) * 0.1,
           pointerEvents: 'none',
         }}
       />

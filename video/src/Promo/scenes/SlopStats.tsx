@@ -5,6 +5,7 @@ import {
   useVideoConfig,
   spring,
   interpolate,
+  Easing,
   Img,
   staticFile,
 } from 'remotion';
@@ -248,10 +249,11 @@ export const SlopStats: React.FC = () => {
       {/* STAT 3: Word of 2025 badge - extended hold for readability */}
       <WordBadge startFrame={65} />
 
-      {/* Vignette */}
+      {/* Vignette - breathing pulse */}
       <AbsoluteFill
         style={{
           background: GRADIENTS.vignette,
+          opacity: 0.8 + Math.sin(frame * 0.08) * 0.12,
           pointerEvents: 'none',
         }}
       />
@@ -290,7 +292,7 @@ const BigStat: React.FC<{
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   );
 
-  // Scale: slam in big, then shrink out
+  // Scale: slam in big, then shrink out + breathing during hold
   const entryScale = interpolate(entrySpring, [0, 1], [2, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
@@ -299,10 +301,14 @@ const BigStat: React.FC<{
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const scale = entryScale * exitScale;
+  // Add breathing during stable display
+  const breathe = entrySpring > 0.9 && exitProgress < 0.1
+    ? 1 + Math.sin(frame * 0.08) * 0.015
+    : 1;
+  const scale = entryScale * exitScale * breathe;
 
-  // Opacity
-  const entryOpacity = interpolate(entrySpring, [0, 0.3], [0, 1], {
+  // Opacity - faster fade-in for snappier entry
+  const entryOpacity = interpolate(entrySpring, [0, 0.6], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -312,12 +318,16 @@ const BigStat: React.FC<{
   });
   const opacity = entryOpacity * exitOpacity;
 
-  // Count up the number
+  // Count up the number with easing for natural deceleration
   const countProgress = interpolate(
     frame,
-    [startFrame, startFrame + 20],
+    [startFrame, startFrame + 25],
     [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.cubic),
+    }
   );
   const displayValue = (value * countProgress).toFixed(decimals);
 
@@ -356,7 +366,7 @@ const BigStat: React.FC<{
         }}
       >
         {displayValue}
-        <span style={{ fontSize: 140, marginLeft: 12 }}>{suffix}</span>
+        <span style={{ fontSize: 140 * (0.85 + countProgress * 0.15), marginLeft: 12 }}>{suffix}</span>
       </div>
 
       {/* Label with emoji */}
