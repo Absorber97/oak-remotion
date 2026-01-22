@@ -1,12 +1,23 @@
 import { Composition } from "remotion";
 import { HelloWorld, myCompSchema } from "./HelloWorld";
 import { Logo, myCompSchema2 } from "./HelloWorld/Logo";
+import { MBMVideo, VIDEO_CONFIG } from "./MBM";
 
 // Each <Composition> is an entry in the sidebar!
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      {/* MBM Video - Matcha by Maryam manifesto */}
+      <Composition
+        id="MBMVideo"
+        component={MBMVideo}
+        durationInFrames={VIDEO_CONFIG.durationInFrames}
+        fps={VIDEO_CONFIG.fps}
+        width={VIDEO_CONFIG.width}
+        height={VIDEO_CONFIG.height}
+      />
+
       <Composition
         // You can take the "id" to render a video:
         // npx remotion render HelloWorld
