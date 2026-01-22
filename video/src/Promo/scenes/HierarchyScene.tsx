@@ -19,9 +19,9 @@ import { FONTS } from '../styles/fonts';
  */
 
 const BLOCKS = [
-  { rank: 1, label: 'EXPERT', color: '#FFD700', height: 340 },
-  { rank: 2, label: 'TOOLS', color: '#C0C0C0', height: 240 },
-  { rank: 3, label: 'AI', color: '#CD7F32', height: 170 },
+  { rank: 1, label: 'EXPERT/AGENCY', color: '#FFD700', height: 340 },
+  { rank: 2, label: 'SPECIALIZED TOOLS', color: '#C0C0C0', height: 240 },
+  { rank: 3, label: 'AI AS LEVERAGE', color: '#CD7F32', height: 170 },
 ];
 
 // Rising spark particle
@@ -221,19 +221,19 @@ export const HierarchyScene: React.FC = () => {
           <div
             style={{
               fontFamily: FONTS.sans,
-              fontSize: 52,
+              fontSize: 48,
               fontWeight: 500,
               color: COLORS.muted,
               marginBottom: 16,
               letterSpacing: '0.05em',
             }}
           >
-            Not AI first.
+            The hierarchy that works
           </div>
           <div
             style={{
               fontFamily: FONTS.sans,
-              fontSize: 96,
+              fontSize: 72,
               fontWeight: 800,
               color: COLORS.primary,
               textShadow: `
@@ -244,7 +244,7 @@ export const HierarchyScene: React.FC = () => {
               letterSpacing: '-0.02em',
             }}
           >
-            AI on top.
+            AI is leverage, not magic.
           </div>
         </div>
 

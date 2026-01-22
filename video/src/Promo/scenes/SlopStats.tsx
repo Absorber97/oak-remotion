@@ -173,10 +173,10 @@ export const SlopStats: React.FC = () => {
       <BigStat
         value={82}
         suffix="%"
-        label="SAME LAYOUTS"
+        label="AI SITES LOOK THE SAME"
         startFrame={0}
         endFrame={45}
-        emoji="📋"
+        emoji="👯"
       />
 
       {/* STAT 2: 2.3x worse conversion */}
@@ -410,22 +410,22 @@ const WordBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
         <div
           style={{
             fontFamily: FONTS.sans,
-            fontSize: 42,
+            fontSize: 38,
             fontWeight: 700,
             color: 'rgba(255, 255, 255, 0.95)',
-            letterSpacing: '0.35em',
+            letterSpacing: '0.25em',
             textTransform: 'uppercase',
             textAlign: 'center',
-            marginBottom: 20,
+            marginBottom: 16,
             textShadow: '0 2px 10px rgba(0,0,0,0.3)',
           }}
         >
-          Word of 2025
+          Word of the Year 2025
         </div>
         <div
           style={{
             fontFamily: FONTS.sans,
-            fontSize: 140,
+            fontSize: 130,
             fontWeight: 900,
             color: COLORS.text,
             textAlign: 'center',
@@ -434,6 +434,19 @@ const WordBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
           }}
         >
           "AI SLOP"
+        </div>
+        <div
+          style={{
+            fontFamily: FONTS.sans,
+            fontSize: 28,
+            fontWeight: 500,
+            color: 'rgba(255, 255, 255, 0.7)',
+            textAlign: 'center',
+            marginTop: 16,
+            letterSpacing: '0.05em',
+          }}
+        >
+          If you're shipping slop, you're cooked.
         </div>
       </div>
     </AbsoluteFill>

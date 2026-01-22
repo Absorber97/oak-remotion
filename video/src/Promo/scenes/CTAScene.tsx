@@ -190,27 +190,29 @@ export const CTAScene: React.FC = () => {
           gap: 24,
         }}
       >
-        {/* Line 1: "Stop hoping for magic." */}
+        {/* Line 1: "Vibe coding won't make you stand out" */}
         <div
           style={{
             fontFamily: FONTS.sans,
-            fontSize: 64,
+            fontSize: 56,
             fontWeight: 500,
             color: COLORS.muted,
             opacity: line1Opacity,
             transform: `translateY(${line1Y}px)`,
             letterSpacing: '0.02em',
+            textAlign: 'center',
           }}
         >
-          Stop hoping for magic.
+          Vibe coding won't make you stand out.
         </div>
 
-        {/* Line 2: "Start multiplying your edge." */}
+        {/* Line 2: "Here's what will." */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 20,
+            justifyContent: 'center',
+            gap: 16,
             opacity: line2Opacity,
             transform: `translateY(${line2Y}px)`,
           }}
@@ -223,10 +225,10 @@ export const CTAScene: React.FC = () => {
               color: COLORS.text,
             }}
           >
-            Start multiplying your
+            Here's what
           </span>
 
-          {/* "edge" with highlight */}
+          {/* "will" with highlight */}
           <span
             style={{
               position: 'relative',
@@ -259,35 +261,46 @@ export const CTAScene: React.FC = () => {
                 zIndex: -1,
               }}
             />
-            edge.
+            will.
           </span>
         </div>
 
-        {/* Footer */}
+        {/* Footer - Read full article CTA */}
         <div
           style={{
-            marginTop: 80,
+            marginTop: 60,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 20,
+            gap: 16,
             opacity: footerOpacity,
           }}
         >
           <div
             style={{
-              width: 100 + Math.sin(frame * 0.1) * 20,
+              fontFamily: FONTS.sans,
+              fontSize: 28,
+              fontWeight: 500,
+              color: COLORS.muted,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Read the full article + case study
+          </div>
+          <div
+            style={{
+              width: 120 + Math.sin(frame * 0.1) * 20,
               height: 3,
               backgroundColor: COLORS.primary,
               opacity: 0.6,
               boxShadow: `0 0 ${20 * urlGlow}px ${COLORS.glow.green}`,
-              transition: 'width 0.1s',
             }}
           />
           <div
             style={{
               fontFamily: FONTS.mono,
-              fontSize: 36,
+              fontSize: 42,
               fontWeight: 700,
               color: COLORS.primary,
               letterSpacing: '0.05em',

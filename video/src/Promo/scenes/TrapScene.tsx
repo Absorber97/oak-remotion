@@ -292,10 +292,10 @@ export const TrapScene: React.FC = () => {
             minHeight: 150,
           }}
         >
-          {/* First text: "You paid for AI magic" */}
+          {/* First text: "You're paying for AI magic" */}
           {showFirstText && (
             <NeonText
-              text="You paid for AI magic"
+              text="You want AI to be magic"
               color={COLORS.text}
               glowColor={COLORS.glow.white}
               fontSize={64}
@@ -307,7 +307,7 @@ export const TrapScene: React.FC = () => {
             />
           )}
 
-          {/* Second text: "But got slop" with glitch */}
+          {/* Second text: "That's the trap" with glitch */}
           {showSecondText && (
             <div
               style={{
@@ -317,7 +317,7 @@ export const TrapScene: React.FC = () => {
               }}
             >
               <NeonText
-                text="But got"
+                text="That's the"
                 color={COLORS.muted}
                 fontSize={56}
                 fontWeight={500}
@@ -327,14 +327,14 @@ export const TrapScene: React.FC = () => {
                 glowIntensity={0.3}
               />
               <GlitchText
-                text="SLOP"
+                text="TRAP"
                 delay={8}
                 fontSize={96}
                 fontWeight={900}
                 glitchIntensity={2}
                 glitchFrequency={0.5}
               />
-              <CentralEmoji emoji="💩" startFrame={53} />
+              <CentralEmoji emoji="🪤" startFrame={53} />
             </div>
           )}
         </div>

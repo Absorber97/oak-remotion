@@ -175,7 +175,7 @@ export const MultiplierScene: React.FC = () => {
         <div
           style={{
             fontFamily: FONTS.mono,
-            fontSize: 36,
+            fontSize: 32,
             fontWeight: 500,
             color: COLORS.primary,
             opacity: subtitleOpacity,
@@ -183,7 +183,7 @@ export const MultiplierScene: React.FC = () => {
             textShadow: `0 0 ${20 + Math.sin(frame * 0.1) * 10}px ${COLORS.glow.green}`,
           }}
         >
-          10× iterations · 10× experiments
+          Same effort, 10× more results
         </div>
       </AbsoluteFill>
 
