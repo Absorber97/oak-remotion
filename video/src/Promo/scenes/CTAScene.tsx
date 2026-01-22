@@ -5,17 +5,18 @@ import {
   useVideoConfig,
   spring,
   interpolate,
+  Easing,
+  OffthreadVideo,
+  staticFile,
 } from 'remotion';
 import { SPRINGS } from '../config';
 import { COLORS, GRADIENTS } from '../styles/colors';
 import { FONTS } from '../styles/fonts';
 
 /**
- * Scene 5: CTA (360-450 frames / 12-15s)
- *
- * "Stop hoping for magic."
- * "Start multiplying your edge."
- * CONTINUOUS DOPAMINE: pulsing glow, floating particles, breathing background
+ * Scene 5: CTA - Two Phases with Slide Transition
+ * Phase 1 (0-50): "Vibe coding won't make you stand out" / "Here's what will"
+ * Phase 2 (50-110): Website CTA + Polaroid Video (slides in from above)
  */
 
 // Floating emoji for visual interest
@@ -28,7 +29,6 @@ const FloatingEmoji: React.FC<{
 }> = ({ x, y, delay, size, emoji }) => {
   const frame = useCurrentFrame();
 
-  // Continuous floating
   const floatY = Math.sin((frame + delay) * 0.05) * 18;
   const floatX = Math.cos((frame + delay) * 0.035) * 12;
   const rotate = Math.sin((frame + delay) * 0.04) * 12;
@@ -51,136 +51,138 @@ const FloatingEmoji: React.FC<{
   );
 };
 
-// Floating orb for ambient motion
-const FloatingOrb: React.FC<{
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  speed: number;
-  delay: number;
-}> = ({ x, y, size, color, speed, delay }) => {
-  const frame = useCurrentFrame();
-
-  const floatX = Math.sin((frame + delay) * speed) * 30;
-  const floatY = Math.cos((frame + delay) * speed * 0.7) * 20;
-  const pulse = 1 + Math.sin((frame + delay) * speed * 1.5) * 0.3;
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: `${x}%`,
-        top: `${y}%`,
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`,
-        transform: `translate(${floatX}px, ${floatY}px) scale(${pulse})`,
-        filter: `blur(${size * 0.3}px)`,
-      }}
-    />
-  );
-};
-
 export const CTAScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // First line animation
-  const line1Spring = spring({
-    frame,
-    fps,
-    config: SPRINGS.text,
+  // ===========================================
+  // PHASE TRANSITION (frame 40-65) - SLOWER, reversed direction
+  // ===========================================
+
+  const phaseTransition = interpolate(frame, [40, 65], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.inOut(Easing.quad),
   });
 
+  // Phase 1 slides UP and fades out
+  const phase1Y = interpolate(phaseTransition, [0, 1], [0, -600], {
+    extrapolateRight: 'clamp',
+  });
+  const phase1Opacity = interpolate(phaseTransition, [0, 0.6], [1, 0], {
+    extrapolateRight: 'clamp',
+  });
+  const phase1Scale = interpolate(phaseTransition, [0, 1], [1, 0.9], {
+    extrapolateRight: 'clamp',
+  });
+
+  // Phase 2 slides UP from below
+  const phase2Y = interpolate(phaseTransition, [0, 1], [500, 0], {
+    extrapolateRight: 'clamp',
+  });
+  const phase2Opacity = interpolate(phaseTransition, [0.2, 0.7], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const phase2Scale = interpolate(phaseTransition, [0, 1], [0.9, 1], {
+    extrapolateRight: 'clamp',
+  });
+
+  // ===========================================
+  // PHASE 1 ANIMATIONS
+  // ===========================================
+
+  // Entry camera (rises into view)
+  const entryProgress = interpolate(frame, [0, 25], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.out(Easing.quad),
+  });
+
+  const entryY = interpolate(entryProgress, [0, 1], [400, 0], {
+    extrapolateRight: 'clamp',
+  });
+  const entryScale = interpolate(entryProgress, [0, 1], [0.9, 1], {
+    extrapolateRight: 'clamp',
+  });
+  const entryOpacity = interpolate(entryProgress, [0, 0.5], [0, 1], {
+    extrapolateRight: 'clamp',
+  });
+
+  // Text animations
+  const line1Spring = spring({ frame, fps, config: SPRINGS.text });
   const line1Opacity = interpolate(line1Spring, [0, 0.5], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-
   const line1Y = interpolate(line1Spring, [0, 1], [40, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  // Second line animation
-  const line2Spring = spring({
-    frame: frame - 20,
-    fps,
-    config: SPRINGS.text,
-  });
-
+  const line2Spring = spring({ frame: frame - 15, fps, config: SPRINGS.text });
   const line2Opacity = interpolate(line2Spring, [0, 0.5], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-
   const line2Y = interpolate(line2Spring, [0, 1], [40, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  // Highlight wipe on "edge"
   const highlightSpring = spring({
-    frame: frame - 35,
+    frame: frame - 25,
     fps,
     config: { damping: 25, stiffness: 120 },
   });
-
   const highlightWidth = interpolate(highlightSpring, [0, 1], [0, 100], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  // CONTINUOUS: Glow pulse
-  const glowPulse = 1 + Math.sin(frame * 0.12) * 0.4;
+  // ===========================================
+  // PHASE 2 ANIMATIONS
+  // ===========================================
 
-  // Footer animation
-  const footerSpring = spring({
-    frame: frame - 50,
+  const polaroidSpring = spring({
+    frame: frame - 55,
     fps,
-    config: SPRINGS.smooth,
+    config: { damping: 12, stiffness: 100 },
   });
-
-  const footerOpacity = interpolate(footerSpring, [0, 1], [0, 0.8], {
+  const polaroidBounce = interpolate(polaroidSpring, [0, 1], [0.8, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  // CONTINUOUS: Background breathing
-  const breathe = 1 + Math.sin(frame * 0.08) * 0.08;
+  // ===========================================
+  // CONTINUOUS MOTION
+  // ===========================================
 
-  // CONTINUOUS: URL glow pulse
-  const urlGlow = 1 + Math.sin(frame * 0.15) * 0.5;
+  const breathe = 1 + Math.sin(frame * 0.08) * 0.08;
+  const glowPulse = 1 + Math.sin(frame * 0.12) * 0.4;
+  const polaroidFloat = Math.sin(frame * 0.05) * 5;
+  const polaroidRotate = Math.sin(frame * 0.03) * 2;
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.background }}>
-      {/* Gradient background with pulse */}
+      {/* Gradient background */}
       <AbsoluteFill
         style={{
           background: `radial-gradient(${900 * breathe}px ${600 * breathe}px at 50% 50%, rgba(0, 255, 136, 0.18), transparent)`,
         }}
       />
 
-      {/* Floating orbs for ambient motion */}
-      <FloatingOrb x={10} y={20} size={100} color={COLORS.primary} speed={0.03} delay={0} />
-      <FloatingOrb x={85} y={30} size={80} color={COLORS.gold} speed={0.04} delay={10} />
-      <FloatingOrb x={15} y={70} size={60} color={COLORS.primary} speed={0.05} delay={20} />
-      <FloatingOrb x={90} y={75} size={70} color={COLORS.accent} speed={0.035} delay={30} />
-      <FloatingOrb x={50} y={85} size={90} color={COLORS.primary} speed={0.025} delay={15} />
-
-      {/* Floating emojis - CTA/success theme */}
+      {/* Floating emojis */}
       <FloatingEmoji x={5} y={15} delay={0} size={55} emoji="🚀" />
       <FloatingEmoji x={93} y={18} delay={5} size={50} emoji="✨" />
       <FloatingEmoji x={7} y={78} delay={10} size={52} emoji="💎" />
       <FloatingEmoji x={91} y={75} delay={3} size={48} emoji="🏆" />
       <FloatingEmoji x={3} y={45} delay={8} size={46} emoji="⚡" />
       <FloatingEmoji x={96} y={50} delay={12} size={54} emoji="🎯" />
-      <FloatingEmoji x={10} y={60} delay={6} size={44} emoji="🔥" />
-      <FloatingEmoji x={88} y={35} delay={9} size={50} emoji="💪" />
 
-      {/* Main content - centered */}
+      {/* ===========================================
+          PHASE 1: Main Message
+          =========================================== */}
       <AbsoluteFill
         style={{
           display: 'flex',
@@ -188,9 +190,11 @@ export const CTAScene: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 24,
+          transform: `translateY(${entryY + phase1Y}px) scale(${entryScale * phase1Scale})`,
+          opacity: entryOpacity * phase1Opacity,
         }}
       >
-        {/* Line 1: "Vibe coding won't make you stand out" */}
+        {/* Line 1 */}
         <div
           style={{
             fontFamily: FONTS.sans,
@@ -206,7 +210,7 @@ export const CTAScene: React.FC = () => {
           Vibe coding won't make you stand out.
         </div>
 
-        {/* Line 2: "Here's what will." */}
+        {/* Line 2 */}
         <div
           style={{
             display: 'flex',
@@ -227,8 +231,6 @@ export const CTAScene: React.FC = () => {
           >
             Here's what
           </span>
-
-          {/* "will" with highlight */}
           <span
             style={{
               position: 'relative',
@@ -246,7 +248,6 @@ export const CTAScene: React.FC = () => {
               paddingRight: 16,
             }}
           >
-            {/* Highlight background */}
             <span
               style={{
                 position: 'absolute',
@@ -264,25 +265,38 @@ export const CTAScene: React.FC = () => {
             will.
           </span>
         </div>
+      </AbsoluteFill>
 
-        {/* Footer - Read full article CTA */}
+      {/* ===========================================
+          PHASE 2: Website + Floating Video
+          =========================================== */}
+      <AbsoluteFill
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 35,
+          transform: `translateY(${phase2Y}px) scale(${phase2Scale})`,
+          opacity: phase2Opacity,
+        }}
+      >
+        {/* Website CTA - BIGGER */}
         <div
           style={{
-            marginTop: 60,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 16,
-            opacity: footerOpacity,
+            gap: 12,
           }}
         >
           <div
             style={{
               fontFamily: FONTS.sans,
-              fontSize: 28,
+              fontSize: 36,
               fontWeight: 500,
               color: COLORS.muted,
-              letterSpacing: '0.1em',
+              letterSpacing: '0.12em',
               textTransform: 'uppercase',
             }}
           >
@@ -290,27 +304,72 @@ export const CTAScene: React.FC = () => {
           </div>
           <div
             style={{
-              width: 120 + Math.sin(frame * 0.1) * 20,
-              height: 3,
-              backgroundColor: COLORS.primary,
-              opacity: 0.6,
-              boxShadow: `0 0 ${20 * urlGlow}px ${COLORS.glow.green}`,
-            }}
-          />
-          <div
-            style={{
               fontFamily: FONTS.mono,
-              fontSize: 42,
+              fontSize: 72,
               fontWeight: 700,
               color: COLORS.primary,
-              letterSpacing: '0.05em',
+              letterSpacing: '0.03em',
               textShadow: `
-                0 0 ${20 * urlGlow}px ${COLORS.glow.green},
-                0 0 ${40 * urlGlow}px ${COLORS.glow.green}
+                0 0 ${30 * glowPulse}px ${COLORS.glow.green},
+                0 0 ${60 * glowPulse}px ${COLORS.glow.green},
+                0 0 ${100 * glowPulse}px ${COLORS.glow.green}
               `,
             }}
           >
             forbiddentrust.com
+          </div>
+        </div>
+
+        {/* Floating video with glowing border - NO polaroid */}
+        <div
+          style={{
+            transform: `translateY(${videoFloat}px) scale(${videoBounce})`,
+            position: 'relative',
+          }}
+        >
+          {/* Glow backdrop */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: -20,
+              background: `radial-gradient(ellipse at center, ${COLORS.primary}30 0%, transparent 70%)`,
+              filter: 'blur(30px)',
+              opacity: glowPulse * 0.6,
+            }}
+          />
+          {/* Video container with sleek rounded corners and glow border */}
+          <div
+            style={{
+              position: 'relative',
+              width: 700,
+              height: 394,
+              borderRadius: 16,
+              overflow: 'hidden',
+              boxShadow: `
+                0 0 0 2px ${COLORS.primary}50,
+                0 0 ${40 * glowPulse}px ${COLORS.primary}40,
+                0 25px 80px rgba(0, 0, 0, 0.5)
+              `,
+            }}
+          >
+            <OffthreadVideo
+              src={staticFile('promo-assets/seq5-video.mp4')}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+              muted
+            />
+            {/* Subtle inner vignette on video */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
           </div>
         </div>
       </AbsoluteFill>

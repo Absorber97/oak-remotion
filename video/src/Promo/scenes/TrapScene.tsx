@@ -5,12 +5,128 @@ import {
   useVideoConfig,
   spring,
   interpolate,
+  Img,
+  staticFile,
 } from 'remotion';
 import { SPRINGS } from '../config';
 import { COLORS, GRADIENTS } from '../styles/colors';
 import { FONTS } from '../styles/fonts';
 import { NeonText } from '../components/NeonText';
 import { GlitchText } from '../components/GlitchText';
+
+// Thought bubble with meme - narrative connection to "the trap"
+const ThoughtBubble: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Stagger: circles pop in first, then main bubble
+  const circle1Spring = spring({
+    frame: frame - 8,
+    fps,
+    config: { damping: 8, stiffness: 200 },
+  });
+  const circle2Spring = spring({
+    frame: frame - 12,
+    fps,
+    config: { damping: 8, stiffness: 200 },
+  });
+  const circle3Spring = spring({
+    frame: frame - 16,
+    fps,
+    config: { damping: 8, stiffness: 200 },
+  });
+  const bubbleSpring = spring({
+    frame: frame - 20,
+    fps,
+    config: { damping: 10, stiffness: 150 },
+  });
+
+  // Continuous motion
+  const floatY = Math.sin(frame * 0.06) * 5;
+  const wobble = Math.sin(frame * 0.04) * 1.5;
+
+  // Scale with bounce
+  const bubbleScale = interpolate(bubbleSpring, [0, 1], [0, 1], {
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 140,
+        right: 320,
+        transform: `translateY(${floatY}px) rotate(${wobble}deg)`,
+      }}
+    >
+      {/* Bubble circles (tail) - connected, pointing down-left toward price */}
+      <div style={{ position: 'absolute', bottom: -50, left: 10 }}>
+        <div
+          style={{
+            width: 16,
+            height: 16,
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            transform: `scale(${circle1Spring})`,
+            boxShadow: '0 0 15px rgba(0,255,136,0.5)',
+          }}
+        />
+      </div>
+      <div style={{ position: 'absolute', bottom: -28, left: 40 }}>
+        <div
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            transform: `scale(${circle2Spring})`,
+            boxShadow: '0 0 15px rgba(0,255,136,0.5)',
+          }}
+        />
+      </div>
+      <div style={{ position: 'absolute', bottom: -8, left: 70 }}>
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            transform: `scale(${circle3Spring})`,
+            boxShadow: '0 0 15px rgba(0,255,136,0.5)',
+          }}
+        />
+      </div>
+
+      {/* Main bubble - cloud/pill shape with high border-radius */}
+      <div
+        style={{
+          width: 280,
+          height: 200,
+          borderRadius: '50%',
+          border: '4px solid rgba(255,255,255,0.9)',
+          overflow: 'hidden',
+          transform: `scale(${bubbleScale})`,
+          boxShadow: `
+            0 0 40px rgba(0,255,136,0.3),
+            0 0 80px rgba(0,255,136,0.15),
+            0 20px 60px rgba(0,0,0,0.5)
+          `,
+          backgroundColor: 'rgba(255,255,255,0.95)',
+        }}
+      >
+        <Img
+          src={staticFile('promo-assets/seq1-trap.jpeg')}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '50%',
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 // Central emoji that pops in with the main content
 const CentralEmoji: React.FC<{ emoji: string; startFrame: number }> = ({ emoji, startFrame }) => {
@@ -201,6 +317,9 @@ export const TrapScene: React.FC = () => {
       <FloatingDollar x={3} y={62} delay={1} size={50} />
       <FloatingDollar x={96} y={52} delay={11} size={60} />
 
+      {/* Thought bubble with meme in upper-left */}
+      <ThoughtBubble />
+
       {/* Main content - single centered layout */}
       <AbsoluteFill
         style={{
@@ -339,6 +458,7 @@ export const TrapScene: React.FC = () => {
           )}
         </div>
       </AbsoluteFill>
+
 
       {/* Vignette */}
       <AbsoluteFill

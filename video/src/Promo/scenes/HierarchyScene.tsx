@@ -5,10 +5,67 @@ import {
   useVideoConfig,
   spring,
   interpolate,
+  Img,
+  staticFile,
 } from 'remotion';
 import { SPRINGS } from '../config';
 import { COLORS, GRADIENTS } from '../styles/colors';
 import { FONTS } from '../styles/fonts';
+
+// Dark Souls epic background - "AI for more" vs "AI for less"
+const EpicBackground: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Entry animation
+  const entrySpring = spring({
+    frame,
+    fps,
+    config: { damping: 100 },
+  });
+
+  const opacity = interpolate(entrySpring, [0, 1], [0, 0.45], {
+    extrapolateRight: 'clamp',
+  });
+
+  // Parallax breathing sync
+  const parallaxY = Math.sin(frame * 0.05) * 12;
+
+  // Slow zoom over scene duration
+  const bgScale = 1 + frame * 0.0004;
+
+  // Glow pulse sync
+  const glowOpacity = 0.5 + Math.sin(frame * 0.08) * 0.15;
+
+  return (
+    <AbsoluteFill
+      style={{
+        opacity,
+        overflow: 'hidden',
+      }}
+    >
+      <Img
+        src={staticFile('promo-assets/seq3-hierarchy.png')}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transform: `scale(${bgScale}) translateY(${parallaxY}px)`,
+        }}
+      />
+      {/* Dark overlay gradient - darker at bottom for podium contrast */}
+      <AbsoluteFill
+        style={{
+          background: `linear-gradient(180deg,
+            rgba(10,10,15,${0.4 + glowOpacity * 0.2}) 0%,
+            rgba(10,10,15,0.85) 60%,
+            rgba(10,10,15,0.95) 100%)`,
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
 
 /**
  * Scene 3: THE HIERARCHY (150-255 frames / 5-8.5s)
@@ -178,6 +235,9 @@ export const HierarchyScene: React.FC = () => {
           background: 'linear-gradient(180deg, #0A0A0F 0%, #12121A 100%)',
         }}
       />
+
+      {/* Dark Souls epic background - "AI for more" vs "AI for less" */}
+      <EpicBackground />
 
       {/* Radial highlight - breathing */}
       <AbsoluteFill

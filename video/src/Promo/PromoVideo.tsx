@@ -36,8 +36,6 @@ import { GrainOverlay } from '../MBM/components/GrainOverlay';
  */
 export const PromoVideo: React.FC = () => {
   // Calculate scene durations accounting for transition overlaps
-  // Transitions overlap adjacent scenes, reducing total duration
-  // We extend scenes to maintain the target 450 frame total
   const sceneDurations = {
     trap: SCENES.trap.duration + Math.floor(TRANSITIONS.flash / 2),
     stats: SCENES.stats.duration + Math.floor((TRANSITIONS.flash + TRANSITIONS.wipe) / 2),
@@ -97,7 +95,7 @@ export const PromoVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: TRANSITIONS.fade })}
         />
 
-        {/* Scene 5: CTA */}
+        {/* Scene 5: CTA (two phases with internal slide transition) */}
         <TransitionSeries.Sequence durationInFrames={sceneDurations.cta}>
           <CTAScene />
         </TransitionSeries.Sequence>

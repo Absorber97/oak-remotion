@@ -5,10 +5,64 @@ import {
   useVideoConfig,
   spring,
   interpolate,
+  Img,
+  staticFile,
 } from 'remotion';
 import { SPRINGS } from '../config';
 import { COLORS, GRADIENTS } from '../styles/colors';
 import { FONTS } from '../styles/fonts';
+
+// Buzz Lightyear "sameness" background - Ken Burns zoom out
+const SamenessBackground: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  // Ken Burns: zoom out from 1.3 to 1.0 to reveal wall of identical copies
+  const zoom = interpolate(frame, [0, 45], [1.4, 1.0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  // Subtle pan
+  const panX = interpolate(frame, [0, 45], [-30, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  // Fade in/out
+  const opacity = interpolate(
+    frame,
+    [0, 10, 40, 50],
+    [0, 0.5, 0.5, 0],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+
+  return (
+    <AbsoluteFill
+      style={{
+        opacity,
+        overflow: 'hidden',
+      }}
+    >
+      <Img
+        src={staticFile('promo-assets/seq2-slop.jpeg')}
+        style={{
+          position: 'absolute',
+          width: '120%',
+          height: '120%',
+          objectFit: 'cover',
+          transform: `scale(${zoom}) translateX(${panX}px)`,
+          filter: 'brightness(0.7)',
+        }}
+      />
+      {/* Dark overlay for text readability */}
+      <AbsoluteFill
+        style={{
+          background: 'linear-gradient(180deg, rgba(10,10,15,0.7) 0%, rgba(10,10,15,0.9) 100%)',
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
 
 /**
  * Scene 2: SLOP STATS (75-150 frames / 2.5-5s)
@@ -130,6 +184,7 @@ export const SlopStats: React.FC = () => {
           background: `radial-gradient(${600 * bgPulse}px ${400 * bgPulse}px at 50% 50%, rgba(255, 51, 102, 0.15), transparent)`,
         }}
       />
+
 
       {/* Rising particles - varied sizes, speeds, and positions */}
       {/* Large particles - slow rise */}
@@ -346,65 +401,109 @@ const BigStat: React.FC<{
   );
 };
 
-// "AI Slop - Word of 2025" badge
+// "AI Slop - Word of 2025" badge with image on left, text on right
 const WordBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   if (frame < startFrame) return null;
 
-  const entrySpring = spring({
+  // Image slides in from left
+  const imageSpring = spring({
     frame: frame - startFrame,
+    fps,
+    config: { damping: 12, stiffness: 100 },
+  });
+
+  const imageX = interpolate(imageSpring, [0, 1], [-400, 0], {
+    extrapolateRight: 'clamp',
+  });
+
+  const imageOpacity = interpolate(imageSpring, [0, 0.5], [0, 1], {
+    extrapolateRight: 'clamp',
+  });
+
+  // Badge slides in from right (staggered)
+  const badgeSpring = spring({
+    frame: frame - startFrame - 8,
     fps,
     config: SPRINGS.bounce,
   });
 
-  const scale = interpolate(entrySpring, [0, 1], [0.3, 1], {
-    extrapolateLeft: 'clamp',
+  const badgeX = interpolate(badgeSpring, [0, 1], [300, 0], {
     extrapolateRight: 'clamp',
   });
 
-  const opacity = interpolate(entrySpring, [0, 0.3], [0, 1], {
-    extrapolateLeft: 'clamp',
+  const badgeOpacity = interpolate(badgeSpring, [0, 0.3], [0, 1], {
     extrapolateRight: 'clamp',
   });
 
-  const rotate = interpolate(entrySpring, [0, 1], [-15, 0], {
-    extrapolateLeft: 'clamp',
+  const badgeScale = interpolate(badgeSpring, [0, 1], [0.8, 1], {
     extrapolateRight: 'clamp',
   });
 
-  // CONTINUOUS: Badge glow pulse - stronger
+  // CONTINUOUS: Badge glow pulse
   const glowPulse = 1 + Math.sin(frame * 0.12) * 0.5;
 
-  // CONTINUOUS: Subtle wobble
-  const wobble = Math.sin(frame * 0.08) * 3;
+  // CONTINUOUS: Subtle wobble on badge
+  const wobble = Math.sin(frame * 0.08) * 2;
+
+  // CONTINUOUS: Image float
+  const imageFloat = Math.sin(frame * 0.06) * 8;
+  const imageRotate = Math.sin(frame * 0.04) * 3;
 
   // CONTINUOUS: Scale pulse
-  const scalePulse = 1 + Math.sin(frame * 0.1) * 0.03;
+  const scalePulse = 1 + Math.sin(frame * 0.1) * 0.02;
 
   return (
     <AbsoluteFill
       style={{
         display: 'flex',
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 50,
+        padding: '0 100px',
       }}
     >
+      {/* Left side: Buzz Lightyear "sameness" image - natural aspect ratio */}
       <div
         style={{
-          position: 'relative',
-          transform: `scale(${scale * scalePulse}) rotate(${rotate + wobble}deg)`,
-          opacity,
-          backgroundColor: COLORS.accent,
-          padding: '70px 140px',
-          borderRadius: 32,
+          transform: `translateX(${imageX}px) translateY(${imageFloat}px) rotate(${imageRotate}deg)`,
+          opacity: imageOpacity,
+          borderRadius: 20,
+          overflow: 'hidden',
           boxShadow: `
-            0 0 ${120 * glowPulse}px ${COLORS.glow.pink},
-            0 0 ${200 * glowPulse}px ${COLORS.glow.pink},
-            0 0 ${300 * glowPulse}px ${COLORS.glow.pink}80,
-            0 40px 100px rgba(0, 0, 0, 0.7)
+            0 0 60px rgba(255, 51, 102, 0.4),
+            0 20px 60px rgba(0, 0, 0, 0.5)
           `,
+          border: '4px solid rgba(255, 51, 102, 0.6)',
+          flexShrink: 0,
+        }}
+      >
+        <Img
+          src={staticFile('promo-assets/seq2-slop.jpeg')}
+          style={{
+            height: 480,
+            width: 'auto',
+          }}
+        />
+      </div>
+
+      {/* Right side: AI SLOP badge */}
+      <div
+        style={{
+          transform: `translateX(${badgeX}px) scale(${badgeScale * scalePulse}) rotate(${wobble}deg)`,
+          opacity: badgeOpacity,
+          backgroundColor: COLORS.accent,
+          padding: '50px 90px',
+          borderRadius: 28,
+          boxShadow: `
+            0 0 ${80 * glowPulse}px ${COLORS.glow.pink},
+            0 0 ${150 * glowPulse}px ${COLORS.glow.pink},
+            0 30px 80px rgba(0, 0, 0, 0.6)
+          `,
+          flexShrink: 0,
         }}
       >
         <div
@@ -413,7 +512,7 @@ const WordBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
             fontSize: 38,
             fontWeight: 700,
             color: 'rgba(255, 255, 255, 0.95)',
-            letterSpacing: '0.25em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             textAlign: 'center',
             marginBottom: 16,
@@ -425,7 +524,7 @@ const WordBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
         <div
           style={{
             fontFamily: FONTS.sans,
-            fontSize: 130,
+            fontSize: 120,
             fontWeight: 900,
             color: COLORS.text,
             textAlign: 'center',
@@ -440,10 +539,10 @@ const WordBadge: React.FC<{ startFrame: number }> = ({ startFrame }) => {
             fontFamily: FONTS.sans,
             fontSize: 28,
             fontWeight: 500,
-            color: 'rgba(255, 255, 255, 0.7)',
+            color: 'rgba(255, 255, 255, 0.75)',
             textAlign: 'center',
             marginTop: 16,
-            letterSpacing: '0.05em',
+            letterSpacing: '0.03em',
           }}
         >
           If you're shipping slop, you're cooked.

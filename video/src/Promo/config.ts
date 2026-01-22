@@ -1,18 +1,18 @@
-// Promo Video Configuration - 18 second flash promo (extended for readability)
+// Promo Video Configuration - 18 second flash promo
 export const PROMO_CONFIG = {
   width: 1920,
   height: 1080,
   fps: 30,
-  durationInFrames: 540, // 18 seconds (extended for reading time)
+  durationInFrames: 540, // 18 seconds
 } as const;
 
-// Scene timings (frames) - extended durations for readability
+// Scene timings (frames)
 export const SCENES = {
-  trap: { start: 0, duration: 105 },        // 0-3.5s (+1s reading time)
-  stats: { start: 105, duration: 105 },     // 3.5-7s (+1s for AI SLOP badge)
-  hierarchy: { start: 210, duration: 120 }, // 7-11s (+0.5s)
-  multiplier: { start: 330, duration: 105 }, // 11-14.5s
-  cta: { start: 435, duration: 105 },       // 14.5-18s (+0.5s for CTA)
+  trap: { start: 0, duration: 105 },        // 0-3.5s
+  stats: { start: 105, duration: 105 },     // 3.5-7s
+  hierarchy: { start: 210, duration: 120 }, // 7-11s
+  multiplier: { start: 330, duration: 100 }, // 11-14.3s (text + images 0.5s)
+  cta: { start: 430, duration: 110 },       // 14.3-18s (two phases with slide transition)
 } as const;
 
 // Transition durations
