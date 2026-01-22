@@ -1,0 +1,311 @@
+{
+  "meta": {
+    "name": "remotion-demo-patterns",
+    "source": {
+      "type": "chat-snapshot",
+      "path": "/Users/oak/Downloads/5b801182176f1b76447901fbeb5a84ac-b7c1d371f69b995f4114322efbcfb15656411036/gistfile1.txt"
+    },
+    "purpose": "Reusable patterns extracted from a Remotion demo video build conversation.",
+    "remotion_principles": [
+      "Animate with useCurrentFrame and useVideoConfig.",
+      "Avoid CSS animations and Tailwind animation classes.",
+      "Premount sequences when timing needs clean transitions."
+    ]
+  },
+  "patterns": [
+    {
+      "id": "composition-base",
+      "title": "Base composition registration",
+      "category": "composition",
+      "goal": "Register a renderable composition with explicit dimensions and duration.",
+      "prompt_template": "Create a {{width}}x{{height}} Remotion composition named {{id}} using {{component}} for {{seconds}} seconds at {{fps}} fps and register it in Root.tsx.",
+      "params": {
+        "id": "SkillsAnnouncement",
+        "component": "Master",
+        "width": 1080,
+        "height": 700,
+        "fps": 30,
+        "seconds": 10
+      },
+      "implementation": {
+        "files": [
+          "src/Root.tsx"
+        ],
+        "notes": [
+          "Define width, height, fps, and durationInFrames explicitly.",
+          "Keep Root.tsx as the registry of compositions."
+        ]
+      }
+    },
+    {
+      "id": "mac-terminal-shell",
+      "title": "Mac terminal shell layout",
+      "category": "layout",
+      "goal": "Create a macOS-style terminal window with title bar, traffic lights, and prompt.",
+      "prompt_template": "Build a macOS terminal UI component with a title bar, traffic lights, and a prompt area. Keep the background transparent and add padding {{padding}}.",
+      "params": {
+        "padding": 32,
+        "titleBarHeight": 56,
+        "windowRadius": 16,
+        "shadow": "shadow-2xl"
+      },
+      "implementation": {
+        "files": [
+          "src/MacTerminal.tsx"
+        ],
+        "notes": [
+          "Use AbsoluteFill with padding and a rounded container.",
+          "Place title bar at the top and a content area below.",
+          "Center the window and keep a neutral light theme."
+        ]
+      }
+    },
+    {
+      "id": "terminal-typewriter",
+      "title": "Typewriter command animation",
+      "category": "text",
+      "goal": "Type a CLI command character by character.",
+      "prompt_template": "Create a TerminalContent component that types \"{{command}}\" at {{charsPerSecond}} chars per second using useCurrentFrame and interpolate.",
+      "params": {
+        "command": "npx skills add remotion-dev/skills",
+        "charsPerSecond": 15,
+        "fontSizeClass": "text-4xl"
+      },
+      "implementation": {
+        "files": [
+          "src/TerminalContent.tsx"
+        ],
+        "notes": [
+          "Derive framesPerChar from fps and charsPerSecond.",
+          "Compute visibleChars via interpolate and clamp.",
+          "Render command substring up to visibleChars."
+        ],
+        "remotion_api": [
+          "useCurrentFrame",
+          "useVideoConfig",
+          "interpolate"
+        ]
+      }
+    },
+    {
+      "id": "terminal-cursor",
+      "title": "Blinking cursor component",
+      "category": "text",
+      "goal": "Blink the cursor when idle and keep it visible at the end of typing.",
+      "prompt_template": "Create a Cursor component that blinks at {{blinkHz}} Hz when blinking is true and stays visible otherwise.",
+      "params": {
+        "blinkHz": 2,
+        "sizeClass": "w-4 h-10"
+      },
+      "implementation": {
+        "files": [
+          "src/Cursor.tsx"
+        ],
+        "notes": [
+          "Toggle opacity based on frame and fps.",
+          "Show cursor while typing and after typing completes."
+        ]
+      }
+    },
+    {
+      "id": "terminal-output-stagger",
+      "title": "Staggered terminal output",
+      "category": "text",
+      "goal": "Reveal terminal output after typing with a short delay and a per-line stagger.",
+      "prompt_template": "After typing, wait {{delaySeconds}}s then reveal an ASCII art logo and output lines at {{lineDelayMs}}ms per line.",
+      "params": {
+        "delaySeconds": 0.5,
+        "lineDelayMs": 50,
+        "lines": [
+          "",
+          "[logo placeholder]",
+          "Source: https://github.com/remotion-dev/skills.git",
+          "Repository cloned",
+          "Found 1 skill",
+          "Skill: remotion-best-practices",
+          "Installation complete"
+        ]
+      },
+      "implementation": {
+        "files": [
+          "src/TerminalContent.tsx"
+        ],
+        "notes": [
+          "Compute typingEndFrame, then outputStartFrame.",
+          "Use interpolate to compute visibleLines and slice the output array.",
+          "Keep content overflow hidden to avoid layout shift."
+        ],
+        "remotion_api": [
+          "useCurrentFrame",
+          "useVideoConfig",
+          "interpolate"
+        ]
+      }
+    },
+    {
+      "id": "master-3d-rotation",
+      "title": "Master composition with 3D rotation",
+      "category": "composition",
+      "goal": "Wrap the terminal in a master scene with perspective and subtle 3D rotation.",
+      "prompt_template": "Create a Master composition that applies perspective and rotates Y from {{startDeg}} to {{endDeg}} over the full duration.",
+      "params": {
+        "backgroundColor": "#f8fafc",
+        "rotateXDeg": 20,
+        "rotateYStartDeg": 10,
+        "rotateYEndDeg": -10,
+        "perspective": 1000
+      },
+      "implementation": {
+        "files": [
+          "src/Master.tsx"
+        ],
+        "notes": [
+          "Apply perspective on the parent container.",
+          "Animate rotateY across durationInFrames with interpolate."
+        ],
+        "remotion_api": [
+          "AbsoluteFill",
+          "Sequence",
+          "useCurrentFrame",
+          "useVideoConfig",
+          "interpolate"
+        ]
+      }
+    },
+    {
+      "id": "terminal-spring-entry",
+      "title": "Fast spring entry without bounce",
+      "category": "motion",
+      "goal": "Bring the terminal in from the bottom with a snappy spring.",
+      "prompt_template": "Make the terminal jump in from the bottom using a spring with high damping and map it to translateY from {{fromPx}} to {{toPx}}.",
+      "params": {
+        "fromPx": 700,
+        "toPx": 100,
+        "springConfig": {
+          "damping": 200,
+          "stiffness": 100
+        }
+      },
+      "implementation": {
+        "files": [
+          "src/Master.tsx"
+        ],
+        "notes": [
+          "Use spring() output (0..1) and interpolate to pixels.",
+          "Avoid CSS transitions; animate via Remotion."
+        ],
+        "remotion_api": [
+          "spring",
+          "interpolate",
+          "useCurrentFrame",
+          "useVideoConfig"
+        ]
+      }
+    },
+    {
+      "id": "output-triggered-flip",
+      "title": "Flip transition after output",
+      "category": "motion",
+      "goal": "Flip the terminal toward the camera once output is complete.",
+      "prompt_template": "After frame {{outputDoneFrame}}, rotateX from 0 to {{flipDeg}} with transform origin at the bottom.",
+      "params": {
+        "outputDoneFrame": 120,
+        "flipDeg": -90
+      },
+      "implementation": {
+        "files": [
+          "src/Master.tsx"
+        ],
+        "notes": [
+          "Drive the flip with a spring using frame - outputDoneFrame.",
+          "Wrap the terminal in a div with transformOrigin set to center bottom."
+        ],
+        "remotion_api": [
+          "spring",
+          "interpolate"
+        ]
+      }
+    },
+    {
+      "id": "logo-combo",
+      "title": "Logo combo composition",
+      "category": "assets",
+      "goal": "Display brand logos with a plus sign in between.",
+      "prompt_template": "Create a LogoCombo composition that shows Remotion, a plus sign, Claude Code, and OpenCode logos with tuned sizes.",
+      "params": {
+        "assets": [
+          "public/remotion-logo.png",
+          "public/claude-logo.svg",
+          "public/opencode-logo.svg"
+        ],
+        "plusColorClass": "text-gray-600",
+        "remotionLogoHeight": "h-32",
+        "claudeLogoHeight": "h-24",
+        "opencodeLogoHeight": "h-16"
+      },
+      "implementation": {
+        "files": [
+          "src/LogoCombo.tsx"
+        ],
+        "notes": [
+          "Store assets in public/ and load via staticFile.",
+          "Keep the background transparent for compositing."
+        ],
+        "remotion_api": [
+          "AbsoluteFill",
+          "Img",
+          "staticFile"
+        ]
+      }
+    },
+    {
+      "id": "logo-combo-reveal",
+      "title": "Logo combo reveal with headline",
+      "category": "sequence",
+      "goal": "Show a text headline before the logo row.",
+      "prompt_template": "Use Series: first show \"{{headline}}\" for {{headlineSeconds}} seconds, then show the logo row.",
+      "params": {
+        "headline": "Agent Skills now available",
+        "headlineSeconds": 2,
+        "fontFamily": "GT Planar, sans-serif",
+        "fontSizePx": 80,
+        "fontWeight": 500
+      },
+      "implementation": {
+        "files": [
+          "src/LogoCombo.tsx"
+        ],
+        "notes": [
+          "Use Series to play headline then logos.",
+          "Ensure the custom font is loaded before render."
+        ],
+        "remotion_api": [
+          "Series"
+        ]
+      }
+    },
+    {
+      "id": "layering-behind-terminal",
+      "title": "Logo behind terminal",
+      "category": "composition",
+      "goal": "Reveal the logo combo behind the terminal after output completes.",
+      "prompt_template": "Add LogoCombo in a Sequence that starts at frame {{startFrame}} and render it before the terminal Sequence for z-order.",
+      "params": {
+        "startFrame": 120,
+        "durationInFrames": 180
+      },
+      "implementation": {
+        "files": [
+          "src/Master.tsx"
+        ],
+        "notes": [
+          "Order elements so LogoCombo renders before MacTerminal.",
+          "Consider premountFor for smoother entry."
+        ],
+        "remotion_api": [
+          "Sequence"
+        ]
+      }
+    }
+  ]
+}

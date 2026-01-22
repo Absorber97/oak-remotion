@@ -2,12 +2,23 @@ import { Composition } from "remotion";
 import { HelloWorld, myCompSchema } from "./HelloWorld";
 import { Logo, myCompSchema2 } from "./HelloWorld/Logo";
 import { MBMVideo, VIDEO_CONFIG } from "./MBM";
+import { PromoVideo, PROMO_CONFIG } from "./Promo";
 
 // Each <Composition> is an entry in the sidebar!
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      {/* Promo Video - 18s flash promo "Vibe coding won't make your product stand out" */}
+      <Composition
+        id="PromoVideo"
+        component={PromoVideo}
+        durationInFrames={PROMO_CONFIG.durationInFrames}
+        fps={PROMO_CONFIG.fps}
+        width={PROMO_CONFIG.width}
+        height={PROMO_CONFIG.height}
+      />
+
       {/* MBM Video - Matcha by Maryam manifesto */}
       <Composition
         id="MBMVideo"

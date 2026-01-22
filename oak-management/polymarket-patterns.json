@@ -1,0 +1,539 @@
+{
+  "meta": {
+    "fps": 30,
+    "width": 1080,
+    "height": 1080,
+    "durationFrames": 1080,
+    "globalLook": {
+      "background": "#000000",
+      "palette": [
+        "#FFFFFF",
+        "#1C1C1E",
+        "#27AE60",
+        "#E74C3C",
+        "#0038FF",
+        "#8E8E93"
+      ],
+      "typography": [
+        {
+          "family": "Inter",
+          "weights": [
+            400,
+            600,
+            700
+          ]
+        }
+      ],
+      "effects": [
+        "glassmorphism",
+        "outer-glow",
+        "vignette"
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "range": {
+        "start": 0,
+        "end": 90
+      },
+      "summary": "Fast text cuts with coin overlay",
+      "layers": [
+        {
+          "name": "bg-glow",
+          "type": "shape",
+          "z": 0,
+          "styles": {
+            "background": "radial-gradient(circle at center, #001040 0%, #000000 70%)",
+            "opacity": 0.8
+          },
+          "motion": []
+        },
+        {
+          "name": "falling-coins-overlay",
+          "type": "video",
+          "z": 1,
+          "styles": {
+            "mixBlendMode": "screen",
+            "opacity": 0.9
+          },
+          "motion": [
+            {
+              "type": "interpolate",
+              "property": "translateY",
+              "frames": {
+                "start": 30,
+                "end": 90
+              },
+              "from": -50,
+              "to": 0
+            }
+          ]
+        },
+        {
+          "name": "text-moves",
+          "type": "text",
+          "z": 2,
+          "styles": {
+            "fontSize": 120,
+            "fontWeight": 700,
+            "color": "#fff",
+            "textAlign": "center"
+          },
+          "motion": [
+            {
+              "type": "sequence",
+              "frames": {
+                "start": 0,
+                "end": 30
+              },
+              "properties": {
+                "opacity": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "text-trade-faster",
+          "type": "text",
+          "z": 2,
+          "styles": {
+            "fontSize": 80,
+            "fontWeight": 600,
+            "color": "#fff",
+            "textShadow": "0 0 20px rgba(255,255,255,0.5)"
+          },
+          "motion": [
+            {
+              "type": "sequence",
+              "frames": {
+                "start": 30,
+                "end": 90
+              },
+              "properties": {
+                "scale": "spring(1, 1.1)",
+                "opacity": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ui-reveal-live",
+      "range": {
+        "start": 90,
+        "end": 240
+      },
+      "summary": "Live indicator and betting UI interaction",
+      "layers": [
+        {
+          "name": "live-badge",
+          "type": "component",
+          "z": 3,
+          "styles": {
+            "position": "absolute",
+            "top": 100,
+            "left": 100,
+            "color": "#E74C3C",
+            "fontSize": 40,
+            "fontWeight": 700,
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 10
+          },
+          "motion": [
+            {
+              "type": "loop",
+              "property": "opacity-dot",
+              "frames": {
+                "duration": 30
+              }
+            }
+          ]
+        },
+        {
+          "name": "bet-card",
+          "type": "div",
+          "z": 2,
+          "styles": {
+            "width": 800,
+            "height": 400,
+            "backgroundColor": "#1C1C1E",
+            "borderRadius": 24,
+            "boxShadow": "0 20px 50px rgba(0,0,0,0.5)",
+            "border": "1px solid #333",
+            "padding": 40
+          },
+          "motion": [
+            {
+              "type": "spring",
+              "property": "scale",
+              "frames": {
+                "start": 90
+              },
+              "from": 0.8,
+              "to": 1,
+              "config": {
+                "damping": 12
+              }
+            }
+          ],
+          "children": [
+            {
+              "name": "button-up",
+              "type": "button",
+              "styles": {
+                "background": "#27AE60",
+                "width": "48%"
+              },
+              "motion": [
+                {
+                  "type": "spring",
+                  "property": "scale",
+                  "trigger": "click-frame-150",
+                  "from": 1,
+                  "to": 0.95
+                }
+              ]
+            },
+            {
+              "name": "button-down",
+              "type": "button",
+              "styles": {
+                "background": "#E74C3C",
+                "width": "48%"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "amount-input",
+      "range": {
+        "start": 240,
+        "end": 450
+      },
+      "summary": "Input amount increments rapidly",
+      "layers": [
+        {
+          "name": "input-panel",
+          "type": "div",
+          "z": 4,
+          "styles": {
+            "bottom": 0,
+            "width": "100%",
+            "height": 600,
+            "background": "#000",
+            "borderTop": "1px solid #333"
+          },
+          "motion": [
+            {
+              "type": "spring",
+              "property": "translateY",
+              "frames": {
+                "start": 240
+              },
+              "from": 600,
+              "to": 0
+            }
+          ]
+        },
+        {
+          "name": "dollar-amount",
+          "type": "text",
+          "z": 5,
+          "styles": {
+            "fontSize": 120,
+            "color": "#fff",
+            "fontFamily": "monospace"
+          },
+          "motion": [
+            {
+              "type": "interpolate",
+              "property": "text-content",
+              "frames": {
+                "start": 260,
+                "end": 300
+              },
+              "from": 1,
+              "to": 100
+            }
+          ]
+        },
+        {
+          "name": "trade-button",
+          "type": "button",
+          "z": 5,
+          "styles": {
+            "width": "90%",
+            "height": 100,
+            "background": "#3498DB",
+            "borderRadius": 16,
+            "fontSize": 40
+          },
+          "motion": [
+            {
+              "type": "spring",
+              "property": "scale",
+              "frames": {
+                "start": 400
+              },
+              "from": 1,
+              "to": 0.95
+            },
+            {
+              "type": "interpolate",
+              "property": "backgroundColor",
+              "frames": {
+                "start": 400,
+                "end": 410
+              },
+              "from": "#3498DB",
+              "to": "#2980B9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chart-scene",
+      "range": {
+        "start": 450,
+        "end": 650
+      },
+      "summary": "Line chart animation with live price",
+      "layers": [
+        {
+          "name": "chart-grid",
+          "type": "svg",
+          "z": 1,
+          "styles": {
+            "stroke": "#333",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "name": "price-line",
+          "type": "svg-path",
+          "z": 2,
+          "styles": {
+            "stroke": "#F39C12",
+            "strokeWidth": 4,
+            "fill": "none"
+          },
+          "motion": [
+            {
+              "type": "interpolate",
+              "property": "strokeDashoffset",
+              "frames": {
+                "start": 450,
+                "end": 550
+              },
+              "from": 1000,
+              "to": 0
+            }
+          ]
+        },
+        {
+          "name": "price-tag",
+          "type": "div",
+          "z": 3,
+          "styles": {
+            "background": "#F39C12",
+            "color": "#000",
+            "padding": "4px 8px",
+            "borderRadius": 4
+          },
+          "motion": [
+            {
+              "type": "interpolate",
+              "property": "translateY",
+              "frames": {
+                "start": 450,
+                "end": 550
+              },
+              "value": "follows-path-y"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "countdown-montage",
+      "range": {
+        "start": 650,
+        "end": 900
+      },
+      "summary": "Countdown timer to rapid fire video montage",
+      "layers": [
+        {
+          "name": "countdown-timer",
+          "type": "text",
+          "z": 5,
+          "styles": {
+            "fontSize": 180,
+            "color": "#E74C3C",
+            "fontVariantNumeric": "tabular-nums"
+          },
+          "motion": [
+            {
+              "type": "interpolate",
+              "property": "text-content",
+              "frames": {
+                "start": 650,
+                "end": 750
+              },
+              "from": 30,
+              "to": 28
+            }
+          ]
+        },
+        {
+          "name": "video-clip-1",
+          "type": "video",
+          "z": 6,
+          "styles": {
+            "objectFit": "cover",
+            "width": "100%",
+            "height": "100%"
+          },
+          "motion": [
+            {
+              "type": "sequence",
+              "frames": {
+                "start": 750,
+                "end": 780
+              },
+              "properties": {
+                "opacity": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "video-clip-2",
+          "type": "video",
+          "z": 6,
+          "motion": [
+            {
+              "type": "sequence",
+              "frames": {
+                "start": 780,
+                "end": 810
+              },
+              "properties": {
+                "opacity": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "outro",
+      "range": {
+        "start": 900,
+        "end": 1080
+      },
+      "summary": "Logo and URL fade in",
+      "layers": [
+        {
+          "name": "logo",
+          "type": "image",
+          "z": 2,
+          "styles": {
+            "width": 150,
+            "height": 150
+          },
+          "motion": [
+            {
+              "type": "spring",
+              "property": "scale",
+              "frames": {
+                "start": 900
+              },
+              "from": 0,
+              "to": 1
+            }
+          ]
+        },
+        {
+          "name": "url-text",
+          "type": "text",
+          "z": 2,
+          "styles": {
+            "marginTop": 40,
+            "fontSize": 48,
+            "color": "#fff"
+          },
+          "motion": [
+            {
+              "type": "interpolate",
+              "property": "opacity",
+              "frames": {
+                "start": 920,
+                "end": 960
+              },
+              "from": 0,
+              "to": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "patterns": [
+    {
+      "id": "button-press",
+      "description": "Scale down slightly and return to original size to simulate click",
+      "remotionMapping": {
+        "technique": "spring",
+        "config": {
+          "damping": 10,
+          "stiffness": 200,
+          "mass": 0.5
+        },
+        "transform": "scale(v)"
+      }
+    },
+    {
+      "id": "numeric-ticker",
+      "description": "Rapidly incrementing numbers formatted as currency",
+      "remotionMapping": {
+        "technique": "interpolate",
+        "logic": "Math.floor(interpolate(frame, [start, end], [valA, valB]))",
+        "format": "Intl.NumberFormat"
+      }
+    }
+  ],
+  "assets": [
+    {
+      "type": "font",
+      "name": "Inter",
+      "source": "Google Fonts"
+    },
+    {
+      "type": "image",
+      "name": "polymarket-logo.png",
+      "source": "staticFile"
+    },
+    {
+      "type": "video",
+      "name": "coins-overlay.webm",
+      "source": "staticFile"
+    },
+    {
+      "type": "video",
+      "name": "stock-trading-clips.mp4",
+      "source": "staticFile"
+    }
+  ],
+  "unknowns": [
+    "Exact font family (assumed Inter/Roboto)",
+    "Specific ease curves for chart line (assumed linear)",
+    "Source of stock footage clips"
+  ]
+}

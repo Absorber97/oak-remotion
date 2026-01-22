@@ -1,0 +1,243 @@
+{
+  "meta": {
+    "name": "skills-launch-patterns",
+    "source": {
+      "type": "chat-snapshot",
+      "path": "/Users/oak/Downloads/1340763972de84d704344970c82b7254-874cefaeb1ef7d187f612bc443d9bdc1ede1a821/gistfile1.txt"
+    },
+    "purpose": "Reusable patterns extracted from a skills.sh launch video build conversation.",
+    "remotion_principles": [
+      "Animate with useCurrentFrame and useVideoConfig.",
+      "Avoid CSS animations and Tailwind animation classes.",
+      "Use Sequence/Series or TransitionSeries for scene timing.",
+      "Clamp interpolate ranges to avoid overshoot."
+    ]
+  },
+  "patterns": [
+    {
+      "id": "composition-skills-video",
+      "title": "Skills launch composition",
+      "category": "composition",
+      "goal": "Register a short, punchy launch video in a 16:9 landscape format.",
+      "prompt_template": "Create a {{width}}x{{height}} Remotion composition named {{id}} using {{component}} for {{seconds}} seconds at {{fps}} fps and register it in Root.tsx.",
+      "params": {
+        "id": "SkillsVideo",
+        "component": "SkillsVideo",
+        "width": 1920,
+        "height": 1080,
+        "fps": 30,
+        "seconds": 25
+      },
+      "implementation": {
+        "files": [
+          "src/Root.tsx"
+        ],
+        "notes": [
+          "Keep Root.tsx as the registry of compositions.",
+          "Use explicit width/height/fps/durationInFrames." 
+        ]
+      }
+    },
+    {
+      "id": "transition-series-timeline",
+      "title": "TransitionSeries scene timeline",
+      "category": "sequence",
+      "goal": "Chain multiple scenes with fades and slides using TransitionSeries.",
+      "prompt_template": "Build a SkillsVideo component that sequences {{sceneCount}} scenes using TransitionSeries with {{transitionType}} transitions and {{transitionFrames}} frame duration.",
+      "params": {
+        "sceneCount": 5,
+        "transitionType": "fade/slide",
+        "transitionFrames": 15,
+        "sceneDurationsSeconds": [4, 5, 4, 8, 4]
+      },
+      "implementation": {
+        "files": [
+          "src/SkillsVideo.tsx"
+        ],
+        "notes": [
+          "Use TransitionSeries.Sequence for each scene.",
+          "Add TransitionSeries.Transition between scenes (fade/slide).",
+          "Transitions overlap and reduce total duration; account for this in total length."
+        ]
+      },
+      "remotion_api": [
+        "TransitionSeries",
+        "linearTiming",
+        "fade",
+        "slide",
+        "useVideoConfig"
+      ]
+    },
+    {
+      "id": "ascii-logo-reveal",
+      "title": "ASCII logo reveal with glow",
+      "category": "text",
+      "goal": "Reveal an ASCII logo line-by-line with a subtle glow and tagline.",
+      "prompt_template": "Animate an ASCII logo by revealing characters over {{revealSeconds}} seconds, then show a tagline below it.",
+      "params": {
+        "revealSeconds": 1.5,
+        "tagline": "The Open Agent Skills Ecosystem",
+        "fontFamily": "monospace",
+        "fontSizePx": 32
+      },
+      "implementation": {
+        "files": [
+          "src/scenes/AsciiLogoScene.tsx"
+        ],
+        "notes": [
+          "Compute charsToShow using interpolate(frame, [0, revealFrames], [0, totalChars]).",
+          "After reveal, apply a spring-driven glow via textShadow.",
+          "Add a subtle radial gradient behind the logo for depth."
+        ]
+      },
+      "remotion_api": [
+        "useCurrentFrame",
+        "useVideoConfig",
+        "interpolate",
+        "spring"
+      ]
+    },
+    {
+      "id": "terminal-command-scene",
+      "title": "Install command terminal scene",
+      "category": "layout",
+      "goal": "Show a macOS-like terminal with a typewriter command and success output.",
+      "prompt_template": "Create a terminal scene that types \"{{command}}\" with a blinking cursor and reveals success output after typing completes.",
+      "params": {
+        "command": "npx skills add <owner/repo>",
+        "charFrames": 2,
+        "cursorBlinkFrames": 16,
+        "successDelaySeconds": 0.5
+      },
+      "implementation": {
+        "files": [
+          "src/scenes/TerminalScene.tsx"
+        ],
+        "notes": [
+          "Use spring() to scale the terminal in.",
+          "Type with string slicing; cursor uses opacity oscillation.",
+          "Success block fades in after typing completion."
+        ]
+      },
+      "remotion_api": [
+        "useCurrentFrame",
+        "useVideoConfig",
+        "interpolate",
+        "spring"
+      ]
+    },
+    {
+      "id": "agent-pill-grid",
+      "title": "Agent pill carousel",
+      "category": "layout",
+      "goal": "Show a grid of agents as pill badges with a soft float and staggered entry.",
+      "prompt_template": "Render agent pills for {{count}} agents with staggered spring entrances and subtle sinusoidal float.",
+      "params": {
+        "count": 12,
+        "pillPadding": "16px 32px",
+        "dotSizePx": 16
+      },
+      "implementation": {
+        "files": [
+          "src/scenes/AgentCarouselScene.tsx"
+        ],
+        "notes": [
+          "Each pill uses spring({frame, delay}) for entry.",
+          "Add a small float offset using Math.sin((frame + index * 10) / 20).",
+          "Use a centered flex-wrap grid with consistent gaps."
+        ]
+      },
+      "remotion_api": [
+        "useCurrentFrame",
+        "useVideoConfig",
+        "spring",
+        "interpolate"
+      ]
+    },
+    {
+      "id": "leaderboard-scroll",
+      "title": "Scrolling leaderboard",
+      "category": "data",
+      "goal": "Scroll through a long leaderboard list with easing and fixed header.",
+      "prompt_template": "Create a scrolling leaderboard that moves from rank {{startRank}} to {{endRank}} using a bezier eased interpolate curve.",
+      "params": {
+        "startRank": 1,
+        "endRank": 55,
+        "rowHeightPx": 56,
+        "scrollEasing": "Easing.bezier(0.25, 0.1, 0.25, 1)"
+      },
+      "implementation": {
+        "files": [
+          "src/scenes/LeaderboardScene.tsx"
+        ],
+        "notes": [
+          "Compute maxScroll = targetRank * ROW_HEIGHT.",
+          "Use interpolate(frame, [start, end], [0, 1], easing) to drive scrollY.",
+          "Add top and bottom gradient fades to mask the list edges."
+        ]
+      },
+      "remotion_api": [
+        "useCurrentFrame",
+        "useVideoConfig",
+        "interpolate",
+        "Easing"
+      ]
+    },
+    {
+      "id": "leaderboard-card-rows",
+      "title": "Top skills card list",
+      "category": "data",
+      "goal": "Display top skills as stacked cards with animated install counts.",
+      "prompt_template": "Create leaderboard cards for top {{count}} skills; animate the install count per row after entry.",
+      "params": {
+        "count": 7,
+        "countAnimFrames": 30,
+        "rowEntranceDelayFrames": 8
+      },
+      "implementation": {
+        "files": [
+          "src/scenes/LeaderboardScene.tsx"
+        ],
+        "notes": [
+          "Each row uses spring() for slide-in.",
+          "Install count animates with interpolate(frame, [delay+10, delay+40]).",
+          "Use tabular-nums to stabilize numeric width."
+        ]
+      },
+      "remotion_api": [
+        "useCurrentFrame",
+        "useVideoConfig",
+        "spring",
+        "interpolate"
+      ]
+    },
+    {
+      "id": "cta-highlight-url",
+      "title": "CTA with highlight and pulse",
+      "category": "text",
+      "goal": "Show the URL with a highlight sweep and a subtle pulse.",
+      "prompt_template": "Animate a CTA that says \"Visit\" then highlights {{url}} with a left-to-right background sweep and gentle pulse.",
+      "params": {
+        "url": "skills.sh",
+        "highlightDurationFrames": 25,
+        "pulseStartFrame": 60
+      },
+      "implementation": {
+        "files": [
+          "src/scenes/CTAScene.tsx"
+        ],
+        "notes": [
+          "Use spring() to scale in the text.",
+          "Highlight is a div scaled on X with transformOrigin: left center.",
+          "Pulse uses a sine wave mapped through interpolate."
+        ]
+      },
+      "remotion_api": [
+        "useCurrentFrame",
+        "useVideoConfig",
+        "interpolate",
+        "spring"
+      ]
+    }
+  ]
+}
