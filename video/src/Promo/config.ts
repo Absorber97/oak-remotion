@@ -1,18 +1,18 @@
-// Promo Video Configuration - 18 second flash promo
+// Promo Video Configuration - 17 second flash promo
 export const PROMO_CONFIG = {
   width: 1920,
   height: 1080,
   fps: 30,
-  durationInFrames: 540, // 18 seconds
+  durationInFrames: 515, // ~17 seconds
 } as const;
 
 // Scene timings (frames)
 export const SCENES = {
   trap: { start: 0, duration: 105 },        // 0-3.5s
   stats: { start: 105, duration: 105 },     // 3.5-7s
-  hierarchy: { start: 210, duration: 120 }, // 7-11s
-  multiplier: { start: 330, duration: 100 }, // 11-14.3s (text + images 0.5s)
-  cta: { start: 430, duration: 110 },       // 14.3-18s (two phases with slide transition)
+  hierarchy: { start: 210, duration: 80 },  // 7-9.67s
+  multiplier: { start: 290, duration: 115 }, // 9.67-13.5s (more time for text)
+  cta: { start: 405, duration: 110 },       // 13.5-17.17s (two phases with slide transition)
 } as const;
 
 // Transition durations

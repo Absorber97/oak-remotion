@@ -19,6 +19,44 @@ import { FONTS } from '../styles/fonts';
  * Phase 2 (50-110): Website CTA + Polaroid Video (slides in from above)
  */
 
+// Lightning particle for electric effect
+const LightningParticle: React.FC<{
+  x: number;
+  y: number;
+  delay: number;
+  size: number;
+}> = ({ x, y, delay, size }) => {
+  const frame = useCurrentFrame();
+
+  const floatY = Math.sin((frame + delay) * 0.08) * 25;
+  const floatX = Math.cos((frame + delay) * 0.06) * 15;
+  const flicker = Math.sin((frame + delay) * 0.4) * 0.5 + 0.5;
+  const rotate = Math.sin((frame + delay) * 0.1) * 45;
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: `${x}%`,
+        top: `${y}%`,
+        width: size,
+        height: size * 2,
+        transform: `translate(${floatX}px, ${floatY}px) rotate(${rotate}deg)`,
+        opacity: 0.4 + flicker * 0.5,
+      }}
+    >
+      {/* Lightning bolt shape */}
+      <svg viewBox="0 0 24 48" fill="none" style={{ width: '100%', height: '100%' }}>
+        <path
+          d="M14 2L4 22h8l-2 24 12-28h-8l4-16z"
+          fill={`rgba(0, 255, 136, ${0.6 + flicker * 0.4})`}
+          filter={`drop-shadow(0 0 ${4 + flicker * 6}px rgba(0, 255, 136, 0.8))`}
+        />
+      </svg>
+    </div>
+  );
+};
+
 // Floating emoji for visual interest
 const FloatingEmoji: React.FC<{
   x: number;
@@ -144,12 +182,12 @@ export const CTAScene: React.FC = () => {
   // PHASE 2 ANIMATIONS
   // ===========================================
 
-  const polaroidSpring = spring({
+  const videoSpring = spring({
     frame: frame - 55,
     fps,
     config: { damping: 12, stiffness: 100 },
   });
-  const polaroidBounce = interpolate(polaroidSpring, [0, 1], [0.8, 1], {
+  const videoBounce = interpolate(videoSpring, [0, 1], [0.8, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -160,8 +198,7 @@ export const CTAScene: React.FC = () => {
 
   const breathe = 1 + Math.sin(frame * 0.08) * 0.08;
   const glowPulse = 1 + Math.sin(frame * 0.12) * 0.4;
-  const polaroidFloat = Math.sin(frame * 0.05) * 5;
-  const polaroidRotate = Math.sin(frame * 0.03) * 2;
+  const videoFloat = Math.sin(frame * 0.05) * 8;
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.background }}>
@@ -172,13 +209,37 @@ export const CTAScene: React.FC = () => {
         }}
       />
 
-      {/* Floating emojis */}
-      <FloatingEmoji x={5} y={15} delay={0} size={55} emoji="🚀" />
-      <FloatingEmoji x={93} y={18} delay={5} size={50} emoji="✨" />
-      <FloatingEmoji x={7} y={78} delay={10} size={52} emoji="💎" />
-      <FloatingEmoji x={91} y={75} delay={3} size={48} emoji="🏆" />
-      <FloatingEmoji x={3} y={45} delay={8} size={46} emoji="⚡" />
-      <FloatingEmoji x={96} y={50} delay={12} size={54} emoji="🎯" />
+      {/* Subtle diagonal line pattern */}
+      <AbsoluteFill
+        style={{
+          opacity: 0.03,
+          backgroundImage: `repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 40px,
+            ${COLORS.primary} 40px,
+            ${COLORS.primary} 41px
+          )`,
+        }}
+      />
+
+      {/* Floating emojis - balanced corners */}
+      <FloatingEmoji x={8} y={12} delay={0} size={48} emoji="🚀" />
+      <FloatingEmoji x={92} y={12} delay={15} size={44} emoji="✨" />
+      <FloatingEmoji x={8} y={85} delay={8} size={46} emoji="💎" />
+      <FloatingEmoji x={92} y={85} delay={22} size={42} emoji="🏆" />
+      <FloatingEmoji x={50} y={8} delay={30} size={40} emoji="⚡" />
+      <FloatingEmoji x={50} y={90} delay={18} size={40} emoji="🎯" />
+
+      {/* Lightning particles floating */}
+      <LightningParticle x={15} y={25} delay={0} size={12} />
+      <LightningParticle x={85} y={30} delay={20} size={10} />
+      <LightningParticle x={25} y={65} delay={35} size={14} />
+      <LightningParticle x={75} y={70} delay={10} size={11} />
+      <LightningParticle x={45} y={20} delay={45} size={9} />
+      <LightningParticle x={55} y={75} delay={25} size={13} />
+      <LightningParticle x={30} y={40} delay={55} size={8} />
+      <LightningParticle x={70} y={35} delay={15} size={10} />
 
       {/* ===========================================
           PHASE 1: Main Message

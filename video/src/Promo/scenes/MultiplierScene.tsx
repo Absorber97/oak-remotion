@@ -66,8 +66,8 @@ export const MultiplierScene: React.FC = () => {
   // CAMERA PROGRESS (3D journey - HORIZONTAL)
   // ===========================================
 
-  // Camera movement: text → showcase (frames 55-85)
-  const cameraProgress = interpolate(frame, [55, 85], [0, 1], {
+  // Camera movement: text → showcase (frames 70-95) - more time to read text
+  const cameraProgress = interpolate(frame, [70, 95], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.quad),
